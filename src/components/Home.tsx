@@ -10,7 +10,7 @@ import {
 
 const Home: React.FC = () => {
   return (
-    <Container maxWidth="xs">
+    <Container maxWidth="md">
       <Box
         sx={{
           marginTop: 8,
