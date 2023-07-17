@@ -2,7 +2,6 @@ import React from "react";
 import {
   Container,
   Box,
-  Stack,
   Typography,
   TextField,
   Button,
@@ -24,7 +23,15 @@ const Home: React.FC = () => {
           アラーム設定
         </Typography>
 
-        <Box component="form" sx={{ mt: 6 }}>
+        <Box
+          component="form"
+          sx={{
+            mt: 6,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           {/* TODO 半角英数字、1以上300以下に制限するバリデーションを追加する */}
           <TextField
             id="interval"
@@ -45,9 +52,9 @@ const Home: React.FC = () => {
           />
           <Button
             type="button"
-            fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            size="large"
           >
             作業開始
           </Button>
