@@ -1,16 +1,60 @@
-import React from "react";
+import { memo } from "react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useSetRecoilState } from "recoil";
+import { useNavigate } from "react-router-dom";
+
 import {
-  Container,
+  CssBaseline,
   Box,
   Typography,
-  TextField,
+  Container,
   Button,
-  InputAdornment,
+  TextField,
 } from "@mui/material";
 
-const Home: React.FC = () => {
+import { intervalState, closingTimeState } from "../store";
+
+export type FormValues = {
+  interval: number;
+  closingTime: string;
+};
+
+const Home: React.FC = memo(() => {
+  const { handleSubmit, control } = useForm<FormValues>();
+  const setInterval = useSetRecoilState(intervalState);
+  const setClosingTime = useSetRecoilState(closingTimeState);
+  const navigate = useNavigate();
+
+  const validationRules = {
+    interval: {
+      required: "interval is required",
+      min: {
+        value: 1,
+        message: "1以上の数値を入力してください",
+      },
+      max: {
+        value: 300,
+        message: "300以下の数値を入力してください",
+      },
+      pattern: {
+        value: /^[0-9]+$/,
+        message: "半角数字で入力してください",
+      },
+    },
+    closingTime: {
+      required: "closing-time is required",
+    },
+  };
+
+  const onSubmit: SubmitHandler<FormValues> = (data: FormValues) => {
+    setInterval(data.interval);
+    setClosingTime(data.closingTime);
+    navigate("/ongoing");
+  };
+
   return (
-    <Container maxWidth="md">
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
       <Box
         sx={{
           marginTop: 8,
@@ -23,38 +67,73 @@ const Home: React.FC = () => {
           アラーム設定
         </Typography>
 
-        <Box
-          component="form"
-          sx={{
-            mt: 6,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          {/* TODO 半角英数字、1以上300以下に制限するバリデーションを追加する */}
-          <TextField
-            id="interval"
-            label="間隔"
-            fullWidth
-            margin="normal"
-            InputProps={{
-              endAdornment: <InputAdornment position="end">分</InputAdornment>,
-              defaultValue: 60,
-            }}
+        <Box component="form" noValidate sx={{ mt: 1 }}>
+          {/* interval input */}
+          <Controller
+            name="interval"
+            control={control}
+            defaultValue={60}
+            rules={validationRules.interval}
+            render={({
+              field: { onChange, value },
+              fieldState: { error },
+              formState,
+            }) => (
+              <TextField
+                margin="normal"
+                fullWidth
+                variant="outlined"
+                required={true}
+                type="number"
+                id="interval"
+                label="アラームの間隔(分)"
+                name="interval"
+                autoComplete="off"
+                autoFocus={true}
+                error={!!error} //booleanに変換してる？
+                onChange={onChange}
+                value={value}
+                helperText={error ? error.message : null}
+              />
+            )}
           />
-          <TextField
-            id="closingTime"
-            label="終了予定時刻"
-            type="time"
-            fullWidth
-            margin="normal"
+
+          {/* closing-time input */}
+          <Controller
+            name="closingTime"
+            control={control}
+            defaultValue=""
+            rules={validationRules.closingTime}
+            render={({
+              field: { onChange, value },
+              fieldState: { error },
+              formState,
+            }) => (
+              <TextField
+                margin="normal"
+                fullWidth
+                variant="outlined"
+                required={true}
+                type="time"
+                id="closingTime"
+                label="終了予定時刻"
+                name="closingTime"
+                autoComplete="off"
+                autoFocus={true}
+                error={!!error}
+                onChange={onChange}
+                value={value}
+                helperText={error ? error.message : null}
+              />
+            )}
           />
+
+          {/* submit button */}
           <Button
-            type="button"
+            onClick={handleSubmit(onSubmit)}
+            fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            size="large"
           >
             作業開始
           </Button>
@@ -62,6 +141,6 @@ const Home: React.FC = () => {
       </Box>
     </Container>
   );
-};
+});
 
 export default Home;
