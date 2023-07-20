@@ -1,7 +1,14 @@
 import React from "react";
+import { useRecoilValue } from "recoil";
 import { Container, Stack, Typography, Button } from "@mui/material";
 
+import { dateOfNextTime } from "../store";
+
 const Ongoing: React.FC = () => {
+  const nextTimeDate = useRecoilValue(dateOfNextTime);
+  const hoursOfNextTime = `0${nextTimeDate.getHours()}`.slice(-2);
+  const minitesOfNextTime = `0${nextTimeDate.getMinutes()}`.slice(-2);
+
   return (
     <Container maxWidth="md">
       <Stack
@@ -18,7 +25,7 @@ const Ongoing: React.FC = () => {
         </Typography>
 
         <Typography component="h2" variant="h4">
-          {`00 : 00`}
+          {`${hoursOfNextTime} : ${minitesOfNextTime}`}
         </Typography>
 
         <Button type="button" variant="contained" size="large">
