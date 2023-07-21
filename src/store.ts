@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom } from "recoil";
 
 // アラームの間隔をminitesで保存する
 export const intervalState = atom({
@@ -6,23 +6,39 @@ export const intervalState = atom({
   default: 60,
 });
 
-// アラームループの終了予定時刻を[XX:XX]形式の文字列で保存する
+// アラームループの終了予定時刻を"XX:XX"形式の文字列で保存する
 export const closingTimeState = atom({
   key: "closingTimeState",
   default: "00:00",
 });
 
+// アラームをリセットするために、セットするたびにtimeoutIdを保存する
 export const timeoutIdState = atom<number | null>({
   key: "timeoutIdState",
   default: null,
 });
 
+// アラームをセットする際に、calculateIntervalから返されたミリ秒を使ったDateを保存する
+export const dateOfNextTime = atom<Date>({
+  key: "dateOfNextTime",
+  default: new Date(),
+});
+
+// dateOfNextTimeを更新するためのstate
+/* export const incrementState = atom({
+  key: "incrementState",
+  default: 0,
+}); */
+
 // intervalStateで作ったDateオブジェクトとclosingTimeStateで作ったDateオブジェクトを比較して、期限が早いほうを返す
-export const dateOfNextTime = selector({
+
+// アラームを設定するたびにdateOfNextTimeを更新したいが、intervalStateとclosingTimeStateは変更できないため、更新するためだけにインクリメントstateを追加する？
+/* export const dateOfNextTime = selector({
   key: "dateOfNextTime",
   get: ({ get }) => {
     const interval = get(intervalState);
     const closingTimeArray = get(closingTimeState).split(":");
+    const increment = get(incrementState);
     const now = new Date();
 
     const nextTimeForInterval = new Date(now.getTime() + interval * 60000);
@@ -63,4 +79,4 @@ export const millisecondsForNextTime = selector({
 
     return nextTime.getTime() - now.getTime();
   },
-});
+}); */

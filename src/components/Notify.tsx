@@ -1,9 +1,15 @@
 import React, { useState } from "react";
-import { useRecoilValue, useRecoilState } from "recoil";
+import { useRecoilValue, useRecoilState, useSetRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
+import calculateInterval from "../lib/calculateInterval";
 
 import { Container, Box, Typography, Stack, Button } from "@mui/material";
-import { millisecondsForNextTime, timeoutIdState } from "../store";
+import {
+  closingTimeState,
+  dateOfNextTime,
+  intervalState,
+  timeoutIdState,
+} from "../store";
 import { ringAlarm, stopAlarm } from "../lib/ringAlarm";
 
 const Notify: React.FC = () => {
@@ -11,7 +17,9 @@ const Notify: React.FC = () => {
   const navigate = useNavigate();
 
   const [timeoutId, setTimeoutId] = useRecoilState(timeoutIdState);
-  const milliseconds = useRecoilValue(millisecondsForNextTime);
+  const interval = useRecoilValue(intervalState);
+  const closingTime = useRecoilValue(closingTimeState);
+  const setDateOfNextTime = useSetRecoilState(dateOfNextTime);
 
   const handleStartClick = () => {
     stopAlarm();
@@ -20,10 +28,14 @@ const Notify: React.FC = () => {
 
   // アラームの再設定
   const handleCompleteClick = () => {
+    const millisecondsForTimeout = calculateInterval(interval, closingTime);
+    setDateOfNextTime(new Date(Date.now() + millisecondsForTimeout));
+
     const id = window.setTimeout(() => {
       ringAlarm();
       navigate("/notify");
-    }, milliseconds);
+    }, millisecondsForTimeout);
+
     setTimeoutId(id);
     navigate("/ongoing");
   };
