@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 
 import { intervalState, closingTimeState, timeoutIdState } from "../store";
-import ringAlarm from "../lib/ringAlarm";
+import { ringAlarm } from "../lib/ringAlarm";
 
 export type FormValues = {
   interval: number;
