@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,12 @@ import {
   TextField,
 } from "@mui/material";
 
-import { intervalState, closingTimeState, timeoutIdState } from "../store";
+import {
+  intervalState,
+  closingTimeState,
+  timeoutIdState,
+  dateOfNextTime,
+} from "../store";
 import { ringAlarm } from "../lib/ringAlarm";
 import calculateInterval from "../lib/calculateInterval";
 
@@ -26,6 +31,7 @@ const Home: React.FC = memo(() => {
   const setInterval = useSetRecoilState(intervalState);
   const setClosingTime = useSetRecoilState(closingTimeState);
   const [timeoutId, setTimeoutId] = useRecoilState(timeoutIdState);
+  const setDateOfNextTime = useSetRecoilState(dateOfNextTime);
   const navigate = useNavigate();
 
   const validationRules = {
@@ -55,6 +61,8 @@ const Home: React.FC = memo(() => {
     const closingTimeStr = data.closingTime;
 
     const millisecondsForTimeout = calculateInterval(interval, closingTimeStr);
+    setDateOfNextTime(new Date(Date.now() + millisecondsForTimeout));
+
     const id = window.setTimeout(() => {
       ringAlarm();
       navigate("/notify");
@@ -71,7 +79,7 @@ const Home: React.FC = memo(() => {
     if (timeoutId) {
       window.clearTimeout(timeoutId);
     }
-  }, []);
+  }, [timeoutId]);
 
   return (
     <Container component="main" maxWidth="xs">
