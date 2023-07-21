@@ -17,7 +17,14 @@ export const timeoutIdState = atom<number | null>({
   default: null,
 });
 
+export const incrementState = atom({
+  key: "incrementState",
+  default: 0,
+});
+
 // intervalStateで作ったDateオブジェクトとclosingTimeStateで作ったDateオブジェクトを比較して、期限が早いほうを返す
+
+// アラームを設定するたびにdateOfNextTimeを更新したいが、intervalStateとclosingTimeStateは変更できないため、更新するためだけにインクリメントstateを追加する？
 export const dateOfNextTime = selector({
   key: "dateOfNextTime",
   get: ({ get }) => {

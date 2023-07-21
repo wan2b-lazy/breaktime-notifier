@@ -14,6 +14,7 @@ import {
 
 import { intervalState, closingTimeState, timeoutIdState } from "../store";
 import { ringAlarm } from "../lib/ringAlarm";
+import calculateInterval from "../lib/calculateInterval";
 
 export type FormValues = {
   interval: number;
@@ -48,53 +49,18 @@ const Home: React.FC = memo(() => {
     },
   };
 
-  // アラーム間隔と終了予定時刻を受け取り、期限が近いほうを使ってアラームをセットする
-  const setAlarm = useCallback((interval: number, closingTime: string) => {
-    const closingTimeArray = closingTime.split(":");
-    const now = new Date();
-
-    const nextTimeForInterval = new Date(now.getTime() + interval * 60000);
-
-    // 終了予定時刻のHourがnowのHourより小さかった場合、終了予定時刻は日付をまたいでいると判断し、Dateコンストラクタに渡すnow.getDateに1を足す
-    let nextTimeForClosingTime: Date;
-    if (Number(closingTimeArray[0]) < now.getHours()) {
-      nextTimeForClosingTime = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1,
-        Number(closingTimeArray[0]),
-        Number(closingTimeArray[1])
-      );
-    } else {
-      nextTimeForClosingTime = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        Number(closingTimeArray[0]),
-        Number(closingTimeArray[1])
-      );
-    }
-
-    let nextTime =
-      nextTimeForClosingTime < nextTimeForInterval
-        ? nextTimeForClosingTime
-        : nextTimeForInterval;
-
-    const millisecondsForTimeout = nextTime.getTime() - now.getTime();
-    const id = window.setTimeout(() => {
-      ringAlarm();
-      navigate("/notify");
-    }, millisecondsForTimeout);
-    setTimeoutId(id);
-  }, []);
-
   const onSubmit: SubmitHandler<FormValues> = (data: FormValues) => {
     // 初回のアラーム設定はuseRecoilValueが使えないため、formとってきたintervalとclosingTimeを使って直接アラームを設定する
     const interval = data.interval;
     const closingTimeStr = data.closingTime;
 
-    setAlarm(interval, closingTimeStr);
+    const millisecondsForTimeout = calculateInterval(interval, closingTimeStr);
+    const id = window.setTimeout(() => {
+      ringAlarm();
+      navigate("/notify");
+    }, millisecondsForTimeout);
 
+    setTimeoutId(id);
     setInterval(interval);
     setClosingTime(closingTimeStr);
     navigate("/ongoing");
