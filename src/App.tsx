@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import "./App.css";
 import Home from "./components/Home";
 import Ongoing from "./components/Ongoing";
 import Notify from "./components/Notify";
